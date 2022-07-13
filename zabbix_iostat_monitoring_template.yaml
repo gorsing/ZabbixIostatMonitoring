@@ -1,7 +1,7 @@
 zabbix_export:
-  version: '5.4'
-  date: '2022-06-15T07:06:27Z'
-  groups:
+  version: '6.2'
+  date: '2022-07-13T03:18:02Z'
+  template_groups:
     -
       uuid: dc579cd7a1a34222933f24f52a68bcd8
       name: 'Linux servers'
@@ -339,13 +339,6 @@ zabbix_export:
                 -
                   tag: Application
                   value: iostat
-              trigger_prototypes:
-                -
-                  uuid: 2b0f2be9d5f845ebb7f7c24c1f4ac4f7
-                  expression: 'last(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},r_await])>2'
-                  name: 'Disk {#HARDDISK} time spent by the read requests in queue'
-                  priority: DISASTER
-                  description: 'Read request slower than 2ms'
             -
               uuid: 074bc5f01b474a958f299327fdef3d3d
               name: 'Disk {#HARDDISK} utilization'
@@ -369,14 +362,14 @@ zabbix_export:
               trigger_prototypes:
                 -
                   uuid: 64d503d56bb64d2e86eac0b3b6482ffa
-                  expression: 'last(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util])>70'
-                  name: 'Disk {#HARDDISK} utilization high'
-                  priority: HIGH
+                  expression: 'min(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util],10m)>{$IOSTAT.UTIL.HIGH:"{#HARDDISK}"}'
+                  name: 'Disk {#HARDDISK} high utilization'
+                  priority: WARNING
                 -
                   uuid: 65ee7632895b46c5abd43189c1ad1d4b
-                  expression: 'last(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util])>90'
-                  name: 'Disk {#HARDDISK} utilization high critical'
-                  priority: DISASTER
+                  expression: 'min(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util],10m)>{$IOSTAT.UTIL.HIGH:"{#HARDDISK}"}'
+                  name: 'Disk {#HARDDISK} very high utilization'
+                  priority: AVERAGE
             -
               uuid: c6ed6861259e44e790063d24013c6e25
               name: 'Disk {#HARDDISK} write requests per second'
@@ -497,16 +490,12 @@ zabbix_export:
                 -
                   tag: Application
                   value: iostat
-              trigger_prototypes:
-                -
-                  uuid: 25e61bf48a7e4a5e9cbd3d1b66bdfd8e
-                  expression: 'last(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},w_await])>3'
-                  name: 'Disk {#HARDDISK} time spent by the write requests in queue to high'
-                  priority: HIGH
-                  description: 'Disk query larger than 3 ms, this will lead to slowdowns'
-                -
-                  uuid: 6b6bf268519d4870b94c89585bb61925
-                  expression: 'last(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},w_await])>5'
-                  name: 'Disk {#HARDDISK} time spent by the write requests in queue to high'
-                  priority: DISASTER
-                  description: 'Disk query larger than 5 ms, this really bad, need to investigate'
+      macros:
+        -
+          macro: '{$IOSTAT.TIME.READ.HIGH}'
+          value: '20'
+          description: 'High disk utilization'
+        -
+          macro: '{$IOSTAT.TIME.WRITE.HIGH}'
+          value: '95'
+          description: 'Very high disk utilization'
