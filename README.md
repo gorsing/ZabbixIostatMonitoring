@@ -1,13 +1,14 @@
 # Zabbix Iostat Monitoring Template
 
-This template for Zabbix 6.0.35 is designed to monitor `iostat` output and provide alerts for high disk utilization and other related metrics.
+This template for Zabbix 6.0.36 is designed to monitor `iostat` output and provide alerts for high disk utilization and other related metrics.
 
 ## Test Environment
 
 The template has been tested in the following environment:
 
-- **Operating System**: Debian 11 Bullsey
-- **iostat Version**: 12.5.2
+- **Operating System**: Debian 11 Bullsey or CentOS 9 Stream
+- **ZabbixAgent**: zabbix-agent2 (Zabbix) 6.0.36
+- **iostat Version**: 12.5.4
 - **jq Version**: 1.6
 
 ---
