@@ -1,34 +1,79 @@
 zabbix_export:
-  version: '6.2'
-  date: '2022-07-13T03:18:02Z'
-  template_groups:
-    -
-      uuid: dc579cd7a1a34222933f24f52a68bcd8
+  version: '6.0'
+  date: '2024-12-20T14:16:24Z'
+  groups:
+    - uuid: dc579cd7a1a34222933f24f52a68bcd8
       name: 'Linux servers'
   templates:
-    -
-      uuid: a70e9642064144bba79b93c7bf3e65df
+    - uuid: a70e9642064144bba79b93c7bf3e65df
       template: 'Linux IOstat by Zabbix agent active'
       name: 'Linux IOstat by Zabbix agent active'
+      description: |
+        # Zabbix Iostat Monitoring Template
+
+        This template for Zabbix 6.0.35 is designed to monitor `iostat` output and provide alerts for high disk utilization and other related metrics.
+
+        ## Test Environment
+
+        The template has been tested in the following environment:
+
+        - **Operating System**: Debian 11 Bullsey
+        - **iostat Version**: 12.5.2
+        - **jq Version**: 1.6
+
+        ---
+
+        ## Installation Instructions
+
+        ### Step 1: Place the User Parameter File
+
+        Copy the provided `userparameter` file into the `zabbix_agentd.d` directory on the target system.
+
+        ### Step 2: Install Dependencies
+
+        This template requires two external dependencies to function:
+
+        1. **sysstat**
+        2. **jq**
+
+        Install these tools using your system's package manager. Examples:
+
+        #### Debian/Ubuntu
+
+        ```bash
+        apt install sysstat jq
+        ```
+
+        #### RHEL/CentOS
+
+        ```bash
+        yum install sysstat jq
+        ```
+
+        ---
+
+        ## Recommendations for sysstat Version
+
+        We recommend using the latest version of `sysstat` because older versions of `iostat` may have bugs in their JSON output. If your system has a version of `sysstat` older than 12.5.2, consider compiling it from the source:
+
+        - [sysstat GitHub Repository](https://github.com/sysstat/sysstat)
+
+        To ensure compatibility with this template, compile `sysstat` with default options.
       groups:
-        -
-          name: 'Linux servers'
+        - name: 'Linux servers'
       discovery_rules:
-        -
-          uuid: 32a8f68aa9c14e7bb455cad4db96f6f1
+        - uuid: 32a8f68aa9c14e7bb455cad4db96f6f1
           name: 'Disk Discovery'
           type: ZABBIX_ACTIVE
           key: disk.iostat.discovery
           delay: 5m
           filter:
             conditions:
-              -
-                macro: '{#HARDDISK}'
+              - macro: '{#HARDDISK}'
                 value: '^((xvd|sd|hd|vd)[a-z]|md[0-9]+|(nvme[0-9]+n[0-9]+))'
                 formulaid: A
           item_prototypes:
-            -
-              uuid: 3a8cd940d9b143fb83255d6c258abea4
+            - uuid: 3a8cd940d9b143fb83255d6c258abea4
               name: 'Disk {#HARDDISK} iostat summary'
               type: ZABBIX_ACTIVE
               key: 'disk.iostat.getstats[{#HARDDISK}]'
@@ -36,11 +81,9 @@ zabbix_export:
               trends: '0'
               value_type: TEXT
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: d9a5f7e6a86842dcb12d977a8ff48b01
+            - uuid: d9a5f7e6a86842dcb12d977a8ff48b01
               name: 'Disk {#HARDDISK} average queue length of the requests'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},aqu-sz]'
@@ -49,18 +92,15 @@ zabbix_export:
               units: KBs
               description: 'The average queue length of the requests that were issued to the device. Note: In previous versions, this field was known as avgqu-sz.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''aqu-sz'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 4b3ef6bbc13b464784d596dd5d9b9496
+            - uuid: 4b3ef6bbc13b464784d596dd5d9b9496
               name: 'Disk {#HARDDISK} discard requests per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},d/s]'
@@ -69,18 +109,15 @@ zabbix_export:
               units: ops
               description: 'The number (after merges) of discard requests completed per second for the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''d/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 99bdcedb1a7f4df597c45711e1f08de4
+            - uuid: 99bdcedb1a7f4df597c45711e1f08de4
               name: 'Disk {#HARDDISK} average size of the discard requests'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},dareq-sz]'
@@ -89,18 +126,15 @@ zabbix_export:
               units: KBs
               description: 'The average size (in kilobytes) of the discard requests that were issued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''dareq-sz'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 32ab9f89c258427e99cfa646357696c8
+            - uuid: 32ab9f89c258427e99cfa646357696c8
               name: 'Disk {#HARDDISK} discard data per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},dMB/s]'
@@ -109,18 +143,15 @@ zabbix_export:
               units: MBs
               description: 'The number of sectors (megabytes) discarded for the device per second.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''dMB/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 6ea6a53ea50b4bf2b5272ab5e7014a56
+            - uuid: 6ea6a53ea50b4bf2b5272ab5e7014a56
               name: 'Disk {#HARDDISK} discard requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},drqm/s]'
@@ -129,18 +160,15 @@ zabbix_export:
               units: ops
               description: 'The number of discard requests merged per second that were queued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''drqm/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: d8be9b2b779f4f7f938102f28d730ed7
+            - uuid: d8be9b2b779f4f7f938102f28d730ed7
               name: 'Disk {#HARDDISK} % discard requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},drqm]'
@@ -149,18 +177,15 @@ zabbix_export:
               units: '%'
               description: 'The percentage of discard requests merged together before being sent to the device'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''drqm'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: ca3c81019489473a99bd8393827b607e
+            - uuid: ca3c81019489473a99bd8393827b607e
               name: 'Disk {#HARDDISK} time spent by the discard requests in queue'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},d_await]'
@@ -169,18 +194,15 @@ zabbix_export:
               units: ms
               description: 'The average time (in milliseconds) for discard requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''d_await'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 61ca684c07c9444581adc215cc53d8c0
+            - uuid: 61ca684c07c9444581adc215cc53d8c0
               name: 'Disk {#HARDDISK} flush requests per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},f/s]'
@@ -189,18 +211,15 @@ zabbix_export:
               units: ops
               description: 'The number (after merges) of flush requests completed per second for the device.  This counts flush requests executed by disks. Flush requests are not tracked for partitions.  Before being merged, flush operations are counted as writes.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''f/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: f7a6c4cf688e45ac8aefe685bf506101
+            - uuid: f7a6c4cf688e45ac8aefe685bf506101
               name: 'Disk {#HARDDISK} time spent by the flush requests in queue'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},f_await]'
@@ -209,18 +228,15 @@ zabbix_export:
               units: ms
               description: 'The average time (in milliseconds) for flush requests issued to the device to be served.  The block layer combines flush requests and executes at most one at a time.  Thus flush operations could be twice as long: Wait for current flush request, then execute it, then wait for the next one.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''f_await'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 971c4043e1484843859cbef0406c673a
+            - uuid: 971c4043e1484843859cbef0406c673a
               name: 'Disk {#HARDDISK} read requests per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},r/s]'
@@ -229,18 +245,15 @@ zabbix_export:
               units: ops
               description: 'The number (after merges) of read requests completed per second for the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''r/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 8eaed7c742504850a69f3839b28cc5ad
+            - uuid: 8eaed7c742504850a69f3839b28cc5ad
               name: 'Disk {#HARDDISK} average size of the read requests'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},rareq-sz]'
@@ -249,18 +262,15 @@ zabbix_export:
               units: KBs
               description: 'The average size (in kilobytes) of the read requests that were issued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''rareq-sz'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: a04b9b90b46042fb958c55f5dd891b56
+            - uuid: a04b9b90b46042fb958c55f5dd891b56
               name: 'Disk {#HARDDISK} read data per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},rMB/s]'
@@ -269,18 +279,15 @@ zabbix_export:
               units: MBs
               description: 'The number of sectors (megabytes) read from the device per second.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''rMB/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 95e14095a9894685b4850568ea3632ea
+            - uuid: 95e14095a9894685b4850568ea3632ea
               name: 'Disk {#HARDDISK} read requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},rrqm/s]'
@@ -289,18 +296,15 @@ zabbix_export:
               units: '%'
               description: 'The number of read requests merged per second that were queued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''rrqm/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 570ba78253734446824d203072b19fc2
+            - uuid: 570ba78253734446824d203072b19fc2
               name: 'Disk {#HARDDISK} % read requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},rrqm]'
@@ -309,18 +313,15 @@ zabbix_export:
               units: '%'
               description: 'The percentage of read requests merged together before being sent to the device'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''rrqm'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: b3fdadfc40174029b9a28393e8783299
+            - uuid: b3fdadfc40174029b9a28393e8783299
               name: 'Disk {#HARDDISK} time spent by the read requests in queue'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},r_await]'
@@ -329,18 +330,15 @@ zabbix_export:
               units: ms
               description: 'The average time (in milliseconds) for read requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''r_await'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 074bc5f01b474a958f299327fdef3d3d
+            - uuid: 074bc5f01b474a958f299327fdef3d3d
               name: 'Disk {#HARDDISK} utilization'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},util]'
@@ -349,29 +347,24 @@ zabbix_export:
               units: '%'
               description: 'Device utilization in %'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - $.util
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
               trigger_prototypes:
-                -
-                  uuid: 64d503d56bb64d2e86eac0b3b6482ffa
+                - uuid: 64d503d56bb64d2e86eac0b3b6482ffa
                   expression: 'min(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util],10m)>{$IOSTAT.UTIL.HIGH:"{#HARDDISK}"}'
                   name: 'Disk {#HARDDISK} high utilization'
                   priority: WARNING
-                -
-                  uuid: 65ee7632895b46c5abd43189c1ad1d4b
+                - uuid: 65ee7632895b46c5abd43189c1ad1d4b
                   expression: 'min(/Linux IOstat by Zabbix agent active/iostat.summary[{#HARDDISK},util],10m)>{$IOSTAT.UTIL.HIGH:"{#HARDDISK}"}'
                   name: 'Disk {#HARDDISK} very high utilization'
                   priority: AVERAGE
-            -
-              uuid: c6ed6861259e44e790063d24013c6e25
+            - uuid: c6ed6861259e44e790063d24013c6e25
               name: 'Disk {#HARDDISK} write requests per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},w/s]'
@@ -380,18 +373,15 @@ zabbix_export:
               units: ops
               description: 'The number (after merges) of write requests completed per second for the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''w/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 3177da4ff3ab401789b0fd5ef4885b52
+            - uuid: 3177da4ff3ab401789b0fd5ef4885b52
               name: 'Disk {#HARDDISK} average size of the write requests'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},wareq-sz]'
@@ -400,18 +390,15 @@ zabbix_export:
               units: KBs
               description: 'The average size (in kilobytes) of the write requests that were issued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''wareq-sz'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 40dd11ac040a4683b23898250f328ca3
+            - uuid: 40dd11ac040a4683b23898250f328ca3
               name: 'Disk {#HARDDISK} write data per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},wMB/s]'
@@ -420,18 +407,15 @@ zabbix_export:
               units: MBs
               description: 'The number of sectors (kilobytes, megabytes) written to the device per second.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''wMB/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: cab8fc074ef24dd98e1d468eeaa4fda4
+            - uuid: cab8fc074ef24dd98e1d468eeaa4fda4
               name: 'Disk {#HARDDISK} write requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},wrqm/s]'
@@ -440,18 +424,15 @@ zabbix_export:
               units: ops
               description: 'The number of write requests merged per second that were queued to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''wrqm/s'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: b06f9fe8be294e1a8c2b6ba4ba309bb7
+            - uuid: b06f9fe8be294e1a8c2b6ba4ba309bb7
               name: 'Disk {#HARDDISK} % write requests (merged) per second'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},wrqm]'
@@ -460,18 +441,15 @@ zabbix_export:
               units: '%'
               description: 'The percentage of write requests merged together before being sent to the device.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''wrqm'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
-            -
-              uuid: 32f09023cc7d4e6c815d65adf5182956
+            - uuid: 32f09023cc7d4e6c815d65adf5182956
               name: 'Disk {#HARDDISK} time spent by the write requests in queue'
               type: DEPENDENT
               key: 'iostat.summary[{#HARDDISK},w_await]'
@@ -480,22 +458,18 @@ zabbix_export:
               units: ms
               description: 'The average time (in milliseconds) for write requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
               preprocessing:
-                -
-                  type: JSONPATH
+                - type: JSONPATH
                   parameters:
                     - '$[''w_await'']'
               master_item:
                 key: 'disk.iostat.getstats[{#HARDDISK}]'
               tags:
-                -
-                  tag: Application
+                - tag: Application
                   value: iostat
       macros:
-        -
-          macro: '{$IOSTAT.TIME.READ.HIGH}'
+        - macro: '{$IOSTAT.TIME.READ.HIGH}'
           value: '20'
           description: 'High disk utilization'
-        -
-          macro: '{$IOSTAT.TIME.WRITE.HIGH}'
+        - macro: '{$IOSTAT.TIME.WRITE.HIGH}'
           value: '95'
           description: 'Very high disk utilization'
